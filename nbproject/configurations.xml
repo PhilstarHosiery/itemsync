@@ -11,8 +11,6 @@
         <in>itemsync.cpp</in>
         <in>map.cpp</in>
         <in>map.h</in>
-        <in>pgdbf.c</in>
-        <in>pgdbf.h</in>
       </df>
     </df>
     <logicalFolder name="ExternalFiles"
@@ -69,10 +67,6 @@
       <item path="src/map.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/map.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="src/pgdbf.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/pgdbf.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>
