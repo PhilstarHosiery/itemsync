@@ -5,8 +5,6 @@
       <df name="build">
       </df>
       <df name="data">
-        <df name="ARTICLES">
-        </df>
       </df>
       <df name="src">
         <in>dbf.h</in>
@@ -17,8 +15,6 @@
         <in>itemsync.cpp</in>
         <in>map.cpp</in>
         <in>map.h</in>
-        <in>pgdbf.c</in>
-        <in>pgdbf.h</in>
       </df>
     </df>
   </logicalFolder>
