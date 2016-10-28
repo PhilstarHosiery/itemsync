@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
         sizStat.orig = sizMap.size();
 
         // Prepared Statements
-        c.prepare("add_art", "INSERT INTO \"sock:article\" (artcono, name, customer) VALUES ($1, $2, $3) RETURNING article_id");
+        c.prepare("add_art", "INSERT INTO \"sock:article\" (artcono, name, customer, subclass) VALUES ($1, $2, $3, '') RETURNING article_id");
         c.prepare("add_col", "INSERT INTO \"sock:color\" (article_id, name) VALUES ($1, $2) RETURNING color_id");
         c.prepare("add_siz", "INSERT INTO \"sock:size\" (article_id, size_index, name) VALUES ($1, $2, $3) RETURNING size_id");
         c.prepare("add_item", "INSERT INTO \"sock:item\" (article_id, color_id, size_id) VALUES ($1, $2, $3)");
