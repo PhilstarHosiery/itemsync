@@ -463,11 +463,16 @@ void updateStat(stat_type &stat, int res) {
 void displayStat(stat_type stat) {
     stat.total = stat.orig + stat.add - stat.del;
 
-    cout << "Stats (" << stat.type << " synchronization)" << endl
-            << " Total Initial = " << stat.orig << endl
-            << " Pass          = " << stat.pass << endl
-            << " Update        = " << stat.update << " (" << stat.update_row << " info)" << endl
-            << " Insert    (+) = " << stat.add << endl
-            << " Delete    (-) = " << stat.del << endl
-            << " Total Final   = " << stat.total << endl;
+    cout << "Stats (" << stat.type << " synchronization)" << endl;
+
+	if (stat.update == 0 && stat.add == 0 && stat.del == 0) {
+		cout << " Total         = " << stat.orig << endl;
+	} else {
+		cout << " Total Initial = " << stat.orig << endl
+			 << " Pass          = " << stat.pass << endl
+			 << " Update        = " << stat.update << " (" << stat.update_row << " info)" << endl
+			 << " Insert    (+) = " << stat.add << endl
+			 << " Delete    (-) = " << stat.del << endl
+			 << " Total Final   = " << stat.total << endl;
+	}
 }

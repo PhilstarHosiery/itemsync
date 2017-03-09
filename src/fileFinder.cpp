@@ -13,6 +13,10 @@
 
 #include "fileFinder.h"
 
+#include <iostream>
+
+using namespace std;
+
 #include <dirent.h>
 #include <boost/algorithm/string.hpp>
 
