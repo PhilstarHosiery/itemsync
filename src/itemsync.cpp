@@ -121,20 +121,20 @@ int main(int argc, char** argv) {
 
         // Prepared Statements
         c.prepare("add_art", "INSERT INTO production.sock_article (artcono, name, customer, subclass) VALUES ($1, $2, $3, '') RETURNING article_id");
-        c.prepare("add_col", "INSERT INTO \"sock:color\" (article_id, name) VALUES ($1, $2) RETURNING color_id");
-        c.prepare("add_siz", "INSERT INTO \"sock:size\" (article_id, size_index, name) VALUES ($1, $2, $3) RETURNING size_id");
-        c.prepare("add_item", "INSERT INTO \"sock:item\" (article_id, color_id, size_id) VALUES ($1, $2, $3)");
+        c.prepare("add_col", "INSERT INTO production.sock_color (article_id, name) VALUES ($1, $2) RETURNING color_id");
+        c.prepare("add_siz", "INSERT INTO production.sock_size (article_id, size_index, name) VALUES ($1, $2, $3) RETURNING size_id");
+        c.prepare("add_item", "INSERT INTO production.sock_item (article_id, color_id, size_id) VALUES ($1, $2, $3)");
 
         c.prepare("update_art_name", "UPDATE production.sock_article SET name=$1 WHERE article_id=$2");
         c.prepare("update_art_customer", "UPDATE production.sock_article SET customer=$1 WHERE article_id=$2");
         // c.prepare("update_art_subclass", "UPDATE production.sock_article SET subclass=$1 WHERE article_id=$2");
-        c.prepare("update_col", "UPDATE \"sock:color\" SET name=$1 WHERE color_id=$2");
-        c.prepare("update_siz", "UPDATE \"sock:size\" SET name=$1 WHERE size_id=$2");
+        c.prepare("update_col", "UPDATE production.sock_color SET name=$1 WHERE color_id=$2");
+        c.prepare("update_siz", "UPDATE production.sock_size SET name=$1 WHERE size_id=$2");
 
         c.prepare("del_article", "DELETE FROM production.sock_article WHERE article_id=$1");
-        c.prepare("del_color", "DELETE FROM \"sock:color\" WHERE color_id=$1");
-        c.prepare("del_size", "DELETE FROM \"sock:size\" WHERE size_id=$1");
-        c.prepare("del_item", "DELETE FROM \"sock:item\" WHERE item_id=$1");
+        c.prepare("del_color", "DELETE FROM production.sock_color WHERE color_id=$1");
+        c.prepare("del_size", "DELETE FROM production.sock_size WHERE size_id=$1");
+        c.prepare("del_item", "DELETE FROM production.sock_item WHERE item_id=$1");
 
         // Open articles.dbf and process each article
         reader.open(dbffile);
@@ -292,7 +292,7 @@ void generate_maps(pqxx::work &txn, map<string, article_type> &articleMap, map<s
         articleMap[art.artcono] = art;
     }
 
-    res = txn.exec("SELECT * FROM \"sock:color\"");
+    res = txn.exec("SELECT * FROM production.sock_color");
     for (auto i = 0; i != res.size(); ++i) {
         color_type col;
 
@@ -303,7 +303,7 @@ void generate_maps(pqxx::work &txn, map<string, article_type> &articleMap, map<s
         colorMap[key(col.article_id, col.name)] = col;
     }
 
-    res = txn.exec("SELECT * FROM \"sock:size\"");
+    res = txn.exec("SELECT * FROM production.sock_size");
     for (auto i = 0; i != res.size(); ++i) {
         size_type siz;
 
@@ -317,7 +317,7 @@ void generate_maps(pqxx::work &txn, map<string, article_type> &articleMap, map<s
 }
 
 void generate_itemMap(pqxx::work &txn, map<string, int> &m) {
-    pqxx::result res = txn.exec("SELECT * FROM \"sock:item\"");
+    pqxx::result res = txn.exec("SELECT * FROM production.sock_item");
     for (auto i = 0; i != res.size(); ++i) {
         int id, art, col, siz;
 
