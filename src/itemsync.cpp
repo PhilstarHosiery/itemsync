@@ -120,18 +120,18 @@ int main(int argc, char** argv) {
         sizStat.orig = sizMap.size();
 
         // Prepared Statements
-        c.prepare("add_art", "INSERT INTO \"sock:article\" (artcono, name, customer, subclass) VALUES ($1, $2, $3, '') RETURNING article_id");
+        c.prepare("add_art", "INSERT INTO production.sock_article (artcono, name, customer, subclass) VALUES ($1, $2, $3, '') RETURNING article_id");
         c.prepare("add_col", "INSERT INTO \"sock:color\" (article_id, name) VALUES ($1, $2) RETURNING color_id");
         c.prepare("add_siz", "INSERT INTO \"sock:size\" (article_id, size_index, name) VALUES ($1, $2, $3) RETURNING size_id");
         c.prepare("add_item", "INSERT INTO \"sock:item\" (article_id, color_id, size_id) VALUES ($1, $2, $3)");
 
-        c.prepare("update_art_name", "UPDATE \"sock:article\" SET name=$1 WHERE article_id=$2");
-        c.prepare("update_art_customer", "UPDATE \"sock:article\" SET customer=$1 WHERE article_id=$2");
-        // c.prepare("update_art_subclass", "UPDATE \"sock:article\" SET subclass=$1 WHERE article_id=$2");
+        c.prepare("update_art_name", "UPDATE production.sock_article SET name=$1 WHERE article_id=$2");
+        c.prepare("update_art_customer", "UPDATE production.sock_article SET customer=$1 WHERE article_id=$2");
+        // c.prepare("update_art_subclass", "UPDATE production.sock_article SET subclass=$1 WHERE article_id=$2");
         c.prepare("update_col", "UPDATE \"sock:color\" SET name=$1 WHERE color_id=$2");
         c.prepare("update_siz", "UPDATE \"sock:size\" SET name=$1 WHERE size_id=$2");
 
-        c.prepare("del_article", "DELETE FROM \"sock:article\" WHERE article_id=$1");
+        c.prepare("del_article", "DELETE FROM production.sock_article WHERE article_id=$1");
         c.prepare("del_color", "DELETE FROM \"sock:color\" WHERE color_id=$1");
         c.prepare("del_size", "DELETE FROM \"sock:size\" WHERE size_id=$1");
         c.prepare("del_item", "DELETE FROM \"sock:item\" WHERE item_id=$1");
@@ -280,7 +280,7 @@ int main(int argc, char** argv) {
 void generate_maps(pqxx::work &txn, map<string, article_type> &articleMap, map<string, color_type> &colorMap, map<string, size_type> &sizeMap) {
     pqxx::result res;
 
-    res = txn.exec("SELECT * FROM \"sock:article\"");
+    res = txn.exec("SELECT * FROM production.sock_article");
     for (auto i = 0; i != res.size(); ++i) {
         article_type art;
 
