@@ -1,0 +1,5 @@
+build/
+db.conf
+itemsync
+nbproject/private/
+tmp
