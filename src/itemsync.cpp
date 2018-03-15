@@ -38,6 +38,17 @@ struct stat_type {
     int add;
     int del;
     int total;
+    
+    stat_type() {
+        type = "";
+        orig = 0;
+        pass = 0;
+        update = 0;
+        update_row = 0;
+        add = 0;
+        del = 0;
+        total = 0;
+    }
 };
 
 void list_target(pqxx::work &txn);
@@ -119,6 +130,7 @@ int main(int argc, char** argv) {
         colStat.orig = colMap.size();
         sizStat.orig = sizMap.size();
 
+        
         // Prepared Statements
         c.prepare("add_art", "INSERT INTO production.sock_article (artcono, name, customer, subclass) VALUES ($1, $2, $3, '') RETURNING article_id");
         c.prepare("add_col", "INSERT INTO production.sock_color (article_id, name) VALUES ($1, $2) RETURNING color_id");
