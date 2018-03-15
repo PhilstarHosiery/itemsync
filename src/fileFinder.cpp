@@ -35,7 +35,7 @@ void fileFinder::openDir(string dir) {
 
     dpdf = opendir(dir.c_str());
     if (dpdf != NULL){
-        while (epdf = readdir(dpdf)) {
+        while ((epdf = readdir(dpdf))) {
             // printf("Filename: %s",epdf->d_name);
             // std::cout << epdf->d_name << std::endl;
             string fn(epdf->d_name);
