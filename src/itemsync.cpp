@@ -246,26 +246,34 @@ int main(int argc, char** argv) {
 
         // Delete non-existing things from target DB
         for (auto i : itemMap) {
+            if (i.second == 1) continue; // VOID item id
+
             cout << " DELETE ITEM [" << i.first << "] at " << i.second << endl;
-            txn.prepared("del_item")(i.second).exec();
+            txn.exec_prepared("del_item", i.second);
             itmStat.del++;
         }
 
         for (auto i : sizMap) {
+            if (i.second.size_id == 1) continue; // VOID size id
+
             cout << " DELETE SIZE [" << i.second.size_id << "] --> " << i.second.article_id << ", " << i.second.size_index << " / " << i.second.name << endl;
-            txn.prepared("del_size")(i.second.size_id).exec();
+            txn.exec_prepared("del_size", i.second.size_id);
             sizStat.del++;
         }
 
         for (auto i : colMap) {
+            if (i.second.color_id == 1) continue; // VOID color id
+
             cout << " DELETE COLOR [" << i.second.color_id << "] --> " << i.second.article_id << ", " << i.second.name << endl;
-            txn.prepared("del_color")(i.second.color_id).exec();
+            txn.exec_prepared("del_color", i.second.color_id);
             colStat.del++;
         }
 
         for (auto i : artMap) {
+            if (i.second.article_id == 1) continue; // VOID article id
+
             cout << " DELETE ARTICLE [" << i.second.article_id << "] --> " << i.second.artcono << ", " << i.second.customer << " / " << i.second.name << endl;
-            txn.prepared("del_article")(i.second.article_id).exec();
+            txn.exec_prepared("del_article", i.second.article_id);
             artStat.del++;
         }
 
@@ -277,10 +285,10 @@ int main(int argc, char** argv) {
         displayStat(sizStat);
         displayStat(itmStat);
 
-        c.disconnect();
+        // c.disconnect();
 
-    } catch (const pqxx::pqxx_exception &e) {
-        cerr << "pqxx_exception: " << e.base().what() << endl;
+    } catch (const pqxx::sql_error &e) {
+        cerr << "sql_error: " << e.what() << " / " << e.query() << endl;
     } catch (const std::exception &e) {
         cerr << "exception: " << e.what() << endl;
         return 1;
@@ -353,7 +361,7 @@ int syncArt(pqxx::work &txn, map<string, article_type> &m, article_type &art) {
     if (itr == m.end()) { // Not found
         cout << " ARTICLE NOT FOUND: INSERT " << art.artcono << ", " << art.name << ", " << art.customer;
 
-        pqxx::result r = txn.prepared("add_art")(art.artcono)(art.name)(art.customer).exec();
+        pqxx::result r = txn.exec_prepared("add_art", art.artcono, art.name, art.customer);
         r[0]["article_id"].to(art.article_id);
         rtn = -1;
 
@@ -364,13 +372,13 @@ int syncArt(pqxx::work &txn, map<string, article_type> &m, article_type &art) {
 
         if (artdb.name != art.name) {
             cout << " UPDATE ARTICLE " << itr->first << " name at " << artdb.article_id << " : " << artdb.name << " -> " << art.name << endl;
-            txn.prepared("update_art_name")(art.name)(artdb.article_id).exec();
+            txn.exec_prepared("update_art_name", art.name, artdb.article_id);
             rtn++;
         }
 
         if (artdb.customer != art.customer) {
             cout << " UPDATE ARTICLE " << itr->first << " customer at " << artdb.article_id << " : " << artdb.customer << " -> " << art.customer << endl;
-            txn.prepared("update_art_customer")(art.customer)(artdb.article_id).exec();
+            txn.exec_prepared("update_art_customer", art.customer, artdb.article_id);
             rtn++;
         }
 
@@ -388,7 +396,7 @@ int syncCol(pqxx::work &txn, map<string, color_type> &m, color_type &col) {
     if (itr == m.end()) { // Not found
         cout << " COLOR NOT FOUND: INSERT " << col.article_id << ", " << col.name;
 
-        pqxx::result r = txn.prepared("add_col")(col.article_id)(col.name).exec();
+        pqxx::result r = txn.exec_prepared("add_col", col.article_id, col.name);
         r[0]["color_id"].to(col.color_id);
         rtn = -1;
 
@@ -399,7 +407,7 @@ int syncCol(pqxx::work &txn, map<string, color_type> &m, color_type &col) {
 
         if (coldb.name != col.name) {
             cout << " UPDATE COLOR " << itr->first << " name at " << coldb.article_id << " : " << coldb.name << " -> " << col.name << endl;
-            txn.prepared("update_col")(col.name)(coldb.color_id).exec();
+            txn.exec_prepared("update_col", col.name, coldb.color_id);
             rtn++;
         }
 
@@ -417,7 +425,7 @@ int syncSiz(pqxx::work &txn, map<string, size_type> &m, size_type &siz) {
     if (itr == m.end()) { // Not found
         cout << " SIZE NOT FOUND: INSERT " << siz.article_id << ", " << siz.size_index << ", " << siz.name;
 
-        pqxx::result r = txn.prepared("add_siz")(siz.article_id)(siz.size_index)(siz.name).exec();
+        pqxx::result r = txn.exec_prepared("add_siz", siz.article_id, siz.size_index, siz.name);
         r[0]["size_id"].to(siz.size_id);
         rtn = -1;
 
@@ -428,7 +436,7 @@ int syncSiz(pqxx::work &txn, map<string, size_type> &m, size_type &siz) {
 
         if (sizdb.name != siz.name) {
             cout << " UPDATE SIZE " << itr->first << " name at " << sizdb.article_id << " : " << sizdb.name << " -> " << siz.name << endl;
-            txn.prepared("update_siz")(siz.name)(sizdb.size_id).exec();
+            txn.exec_prepared("update_siz", siz.name, sizdb.size_id);
             rtn++;
         }
 
@@ -444,7 +452,7 @@ int syncItem(pqxx::work &txn, map<string, int> &m, int artId, int colId, int siz
 
     if (itr == m.end()) { // Not found
         cout << " ITEM NOT FOUND: INSERT " << artId << ", " << colId << ", " << sizId << endl;
-        txn.prepared("add_item")(artId) (colId) (sizId).exec();
+        txn.exec_prepared("add_item", artId, colId, sizId);
         rtn = -1;
     } else { // Found
         m.erase(itr);
