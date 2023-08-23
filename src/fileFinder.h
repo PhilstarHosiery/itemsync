@@ -33,8 +33,6 @@ public:
     
 private:
     map<string, string> fn_map;
-    
-    string toLower(string str);
 };
 
 #endif /* FILEFINDER_H */

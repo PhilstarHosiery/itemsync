@@ -67,4 +67,3 @@ void fileFinder::dump() {
     
     cout << "fn_map: " << cnt << " entires." << endl;
 }
-

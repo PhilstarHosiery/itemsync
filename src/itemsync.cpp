@@ -186,8 +186,9 @@ int main(int argc, char** argv) {
                     syncArt(txn, artMap, tmpArt));
             article_id = tmpArt.article_id;
 
-            color_fn = artcolor.findFile(artcono + ".dbf");
+            color_fn = artcolor.findFile(artcono + ".DBF");
             if (color_fn.empty()) {
+                cerr << artcono + ".DBF skipped!" << endl;
                 continue; // skip if no ARTCOLOR file exists
             }
 
@@ -394,13 +395,17 @@ int syncCol(pqxx::work &txn, map<string, color_type> &m, color_type &col) {
     int rtn = 0;
 
     if (itr == m.end()) { // Not found
-        cout << " COLOR NOT FOUND: INSERT " << col.article_id << ", " << col.name;
+        cout << " COLOR NOT FOUND: INSERT article_id=" << col.article_id << ", color=" << col.name;
 
         pqxx::result r = txn.exec_prepared("add_col", col.article_id, col.name);
         r[0]["color_id"].to(col.color_id);
         rtn = -1;
 
-        cout << " -> " << col.color_id << endl;
+        cout << " -> color_id=" << col.color_id << endl;
+        
+        // for (auto item : m) {
+        //     cout << "  - [" << item.first << "] -> " << item.second << endl;
+        // }
     } else { // Found
         coldb = itr->second;
         col.color_id = coldb.color_id;
