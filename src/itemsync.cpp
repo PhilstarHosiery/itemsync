@@ -132,21 +132,21 @@ int main(int argc, char** argv) {
 
         
         // Prepared Statements
-        c.prepare("add_art", "INSERT INTO production.sock_article (artcono, name, customer, subclass) VALUES ($1, $2, $3, '') RETURNING article_id");
-        c.prepare("add_col", "INSERT INTO production.sock_color (article_id, name) VALUES ($1, $2) RETURNING color_id");
-        c.prepare("add_siz", "INSERT INTO production.sock_size (article_id, size_index, name) VALUES ($1, $2, $3) RETURNING size_id");
+        c.prepare("add_art", "INSERT INTO production.sock_article (artcono, name, customer, subclass) VALUES ($1, $2, $3, '') RETURNING id");
+        c.prepare("add_col", "INSERT INTO production.sock_color (article_id, name) VALUES ($1, $2) RETURNING id");
+        c.prepare("add_siz", "INSERT INTO production.sock_size (article_id, size_index, name) VALUES ($1, $2, $3) RETURNING id");
         c.prepare("add_item", "INSERT INTO production.sock_item (article_id, color_id, size_id) VALUES ($1, $2, $3)");
 
-        c.prepare("update_art_name", "UPDATE production.sock_article SET name=$1 WHERE article_id=$2");
-        c.prepare("update_art_customer", "UPDATE production.sock_article SET customer=$1 WHERE article_id=$2");
+        c.prepare("update_art_name", "UPDATE production.sock_article SET name=$1 WHERE id=$2");
+        c.prepare("update_art_customer", "UPDATE production.sock_article SET customer=$1 WHERE id=$2");
         // c.prepare("update_art_subclass", "UPDATE production.sock_article SET subclass=$1 WHERE article_id=$2");
-        c.prepare("update_col", "UPDATE production.sock_color SET name=$1 WHERE color_id=$2");
-        c.prepare("update_siz", "UPDATE production.sock_size SET name=$1 WHERE size_id=$2");
+        c.prepare("update_col", "UPDATE production.sock_color SET name=$1 WHERE id=$2");
+        c.prepare("update_siz", "UPDATE production.sock_size SET name=$1 WHERE id=$2");
 
-        c.prepare("del_article", "DELETE FROM production.sock_article WHERE article_id=$1");
-        c.prepare("del_color", "DELETE FROM production.sock_color WHERE color_id=$1");
-        c.prepare("del_size", "DELETE FROM production.sock_size WHERE size_id=$1");
-        c.prepare("del_item", "DELETE FROM production.sock_item WHERE item_id=$1");
+        c.prepare("del_article", "DELETE FROM production.sock_article WHERE id=$1");
+        c.prepare("del_color", "DELETE FROM production.sock_color WHERE id=$1");
+        c.prepare("del_size", "DELETE FROM production.sock_size WHERE id=$1");
+        c.prepare("del_item", "DELETE FROM production.sock_item WHERE id=$1");
 
         // Open articles.dbf and process each article
         reader.open(dbffile);
@@ -305,7 +305,7 @@ void generate_maps(pqxx::work &txn, map<string, article_type> &articleMap, map<s
     for (auto i = 0; i != res.size(); ++i) {
         article_type art;
 
-        res[i]["article_id"].to(art.article_id);
+        res[i]["id"].to(art.article_id);
         res[i]["artcono"].to(art.artcono);
         res[i]["name"].to(art.name);
         res[i]["customer"].to(art.customer);
@@ -317,7 +317,7 @@ void generate_maps(pqxx::work &txn, map<string, article_type> &articleMap, map<s
     for (auto i = 0; i != res.size(); ++i) {
         color_type col;
 
-        res[i]["color_id"].to(col.color_id);
+        res[i]["id"].to(col.color_id);
         res[i]["article_id"].to(col.article_id);
         res[i]["name"].to(col.name);
 
@@ -328,7 +328,7 @@ void generate_maps(pqxx::work &txn, map<string, article_type> &articleMap, map<s
     for (auto i = 0; i != res.size(); ++i) {
         size_type siz;
 
-        res[i]["size_id"].to(siz.size_id);
+        res[i]["id"].to(siz.size_id);
         res[i]["article_id"].to(siz.article_id);
         res[i]["size_index"].to(siz.size_index);
         res[i]["name"].to(siz.name);
@@ -342,7 +342,7 @@ void generate_itemMap(pqxx::work &txn, map<string, int> &m) {
     for (auto i = 0; i != res.size(); ++i) {
         int id, art, col, siz;
 
-        res[i]["item_id"].to(id);
+        res[i]["id"].to(id);
         res[i]["article_id"].to(art);
         res[i]["color_id"].to(col);
         res[i]["size_id"].to(siz);
@@ -363,7 +363,7 @@ int syncArt(pqxx::work &txn, map<string, article_type> &m, article_type &art) {
         cout << " ARTICLE NOT FOUND: INSERT " << art.artcono << ", " << art.name << ", " << art.customer;
 
         pqxx::result r = txn.exec_prepared("add_art", art.artcono, art.name, art.customer);
-        r[0]["article_id"].to(art.article_id);
+        r[0]["id"].to(art.article_id);
         rtn = -1;
 
         cout << " -> " << art.article_id << endl;
@@ -398,7 +398,7 @@ int syncCol(pqxx::work &txn, map<string, color_type> &m, color_type &col) {
         cout << " COLOR NOT FOUND: INSERT article_id=" << col.article_id << ", color=" << col.name;
 
         pqxx::result r = txn.exec_prepared("add_col", col.article_id, col.name);
-        r[0]["color_id"].to(col.color_id);
+        r[0]["id"].to(col.color_id);
         rtn = -1;
 
         cout << " -> color_id=" << col.color_id << endl;
@@ -431,7 +431,7 @@ int syncSiz(pqxx::work &txn, map<string, size_type> &m, size_type &siz) {
         cout << " SIZE NOT FOUND: INSERT " << siz.article_id << ", " << siz.size_index << ", " << siz.name;
 
         pqxx::result r = txn.exec_prepared("add_siz", siz.article_id, siz.size_index, siz.name);
-        r[0]["size_id"].to(siz.size_id);
+        r[0]["id"].to(siz.size_id);
         rtn = -1;
 
         cout << " -> " << siz.size_id << endl;
