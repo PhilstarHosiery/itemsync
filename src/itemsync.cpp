@@ -132,9 +132,9 @@ int main(int argc, char** argv) {
 
         
         // Prepared Statements
-        c.prepare("add_art", "INSERT INTO production.sock_articles (artcono, name, customer, subclass) VALUES ($1, $2, $3, '') RETURNING id");
-        c.prepare("add_col", "INSERT INTO production.sock_colors (article_id, name) VALUES ($1, $2) RETURNING id");
-        c.prepare("add_siz", "INSERT INTO production.sock_sizes (article_id, size_index, name) VALUES ($1, $2, $3) RETURNING id");
+        c.prepare("add_art", "INSERT INTO production.sock_articles (artcono, name, customer, subclass, phsystem) VALUES ($1, $2, $3, '', true) RETURNING id");
+        c.prepare("add_col", "INSERT INTO production.sock_colors (article_id, name, phsystem) VALUES ($1, $2, true) RETURNING id");
+        c.prepare("add_siz", "INSERT INTO production.sock_sizes (article_id, size_index, name, phsystem) VALUES ($1, $2, $3, true) RETURNING id");
         c.prepare("add_item", "INSERT INTO production.sock_items (article_id, color_id, size_id) VALUES ($1, $2, $3)");
 
         c.prepare("update_art_name", "UPDATE production.sock_articles SET name=$1 WHERE id=$2");
@@ -143,9 +143,9 @@ int main(int argc, char** argv) {
         c.prepare("update_col", "UPDATE production.sock_colors SET name=$1 WHERE id=$2");
         c.prepare("update_siz", "UPDATE production.sock_sizes SET name=$1 WHERE id=$2");
 
-        c.prepare("del_article", "DELETE FROM production.sock_articles WHERE id=$1");
-        c.prepare("del_color", "DELETE FROM production.sock_colors WHERE id=$1");
-        c.prepare("del_size", "DELETE FROM production.sock_sizes WHERE id=$1");
+        c.prepare("del_article", "DELETE FROM production.sock_articles WHERE id=$1 AND phsystem=true");
+        c.prepare("del_color", "DELETE FROM production.sock_colors WHERE id=$1 AND phsystem=true");
+        c.prepare("del_size", "DELETE FROM production.sock_sizes WHERE id=$1 AND phsystem=true");
         c.prepare("del_item", "DELETE FROM production.sock_items WHERE id=$1");
 
         // Open articles.dbf and process each article
@@ -301,7 +301,7 @@ int main(int argc, char** argv) {
 void generate_maps(pqxx::work &txn, map<string, article_type> &articleMap, map<string, color_type> &colorMap, map<string, size_type> &sizeMap) {
     pqxx::result res;
 
-    res = txn.exec("SELECT * FROM production.sock_articles");
+    res = txn.exec("SELECT * FROM production.sock_articles WHERE phsystem=true");
     for (auto i = 0; i != res.size(); ++i) {
         article_type art;
 
@@ -313,7 +313,7 @@ void generate_maps(pqxx::work &txn, map<string, article_type> &articleMap, map<s
         articleMap[art.artcono] = art;
     }
 
-    res = txn.exec("SELECT * FROM production.sock_colors");
+    res = txn.exec("SELECT * FROM production.sock_colors WHERE phsystem=true");
     for (auto i = 0; i != res.size(); ++i) {
         color_type col;
 
@@ -324,7 +324,7 @@ void generate_maps(pqxx::work &txn, map<string, article_type> &articleMap, map<s
         colorMap[key(col.article_id, col.name)] = col;
     }
 
-    res = txn.exec("SELECT * FROM production.sock_sizes");
+    res = txn.exec("SELECT * FROM production.sock_sizes WHERE phsystem=true");
     for (auto i = 0; i != res.size(); ++i) {
         size_type siz;
 
