@@ -17,7 +17,7 @@ make install
 
 Direct compilation (equivalent to `make all`):
 ```bash
-clang++ -o itemsync -std=c++17 -O2 \
+clang++ -o itemsync -std=c++23 -O2 \
   -I/usr/local/include -L/usr/local/lib \
   -lpthread -lboost_system -lpqxx -lpq \
   src/fileFinder.cpp src/dbfReader.cpp src/itemsync.cpp
@@ -36,7 +36,7 @@ clang++ -o itemsync -std=c++17 -O2 \
 
 ## Architecture
 
-**itemsync** is a C++17 command-line utility that synchronizes product catalog data from DBF (dBASE) files into a PostgreSQL database. It manages articles (products), colors, sizes, and item combinations for Philstar Hosiery's sock manufacturing system.
+**itemsync** is a C++23 command-line utility that synchronizes product catalog data from DBF (dBASE) files into a PostgreSQL database. It manages articles (products), colors, sizes, and item combinations for Philstar Hosiery's sock manufacturing system.
 
 ### Core Components
 
@@ -81,7 +81,7 @@ Composite string keys use `|||` separator for map lookups:
 
 ### Dependencies
 
-- clang++ (C++17)
+- clang++ (C++23)
 - libpqxx (PostgreSQL C++ client)
 - Boost (system, algorithm/string)
 - pthread
