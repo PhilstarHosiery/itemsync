@@ -19,7 +19,7 @@ Direct compilation (equivalent to `make all`):
 ```bash
 clang++ -o itemsync -std=c++23 -O2 \
   -I/usr/local/include -L/usr/local/lib \
-  -lpthread -lboost_system -lpqxx -lpq \
+  -lpthread -lpqxx -lpq \
   src/fileFinder.cpp src/dbfReader.cpp src/itemsync.cpp
 ```
 
@@ -59,11 +59,13 @@ clang++ -o itemsync -std=c++23 -O2 \
 
 ### Data Flow
 
-1. Load existing database records into in-memory maps (`artMap`, `colMap`, `sizMap`, `itemMap`)
+1. Load existing database records (where `phsystem=true`) into in-memory maps (`artMap`, `colMap`, `sizMap`, `itemMap`)
 2. Read articles.DBF file record by record
 3. For each article: sync articles, sizes, colors, and items against the maps
-4. Insert new records, update changed records
-5. Delete any remaining unmapped records (except id=1 which is a VOID placeholder)
+4. Insert new records, update changed records — matched records are erased from their map
+5. After processing all DBF records, delete any entries still remaining in the maps (they no longer exist in the source DBF). Records with id=1 (VOID placeholder) are never deleted.
+
+The entire operation runs in a single PostgreSQL transaction (`pqxx::work`), so all changes are atomic.
 
 ### Database Schema
 
@@ -73,17 +75,25 @@ Target tables in `production` schema:
 - `sock_sizes` (id, article_id, size_index, name, phsystem)
 - `sock_items` (id, article_id, color_id, size_id)
 
-### Key Generation
+### Key Conventions
 
 Composite string keys use `|||` separator for map lookups:
 - `"article_id|||field_name"` for colors/sizes
 - `"article_id|||color_id|||size_id"` for items
 
+The `phsystem` column (boolean) distinguishes records managed by this tool (`true`) from manually-created records (`false`). Only `phsystem=true` records are loaded, synced, and subject to deletion.
+
+Sync functions (`syncArt`, `syncCol`, `syncSiz`, `syncItem`) return: `-1` = new insert, `0` = found unchanged (pass), `1+` = number of fields updated.
+
+### Unused Files
+
+`src/map.cpp` and `src/map.h` are legacy files not included in the build. They contain an old custom map implementation that was replaced by `std::map`.
+
 ### Dependencies
 
 - clang++ (C++23)
-- libpqxx (PostgreSQL C++ client)
-- Boost (system, algorithm/string)
+- libpqxx (PostgreSQL C++ client, modern API with `pqxx::prepped` / `pqxx::params`)
+- Boost (algorithm/string, header-only)
 - pthread
 
 ## Configuration
